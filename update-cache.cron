@@ -1,0 +1,3 @@
+# m h dom mon dow user	command
+# Daily update of exam schedule
+34 5 * * * root /usr/bin/php5 /srv/sites/exams.bellinger.ca/update-cache.php
