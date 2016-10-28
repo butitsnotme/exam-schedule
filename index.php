@@ -1,18 +1,10 @@
 <?php
 
 $commonAllow = true;
+$forwardable = true;
 require_once('common.php');
 
-if (isset($course['discipline']) && isset($course['number']) &&
-  isset($course['section'])) {
-  $courses[count($courses)] = $course;
-  $course = array();
-  sort($courses);
-  header("Location: /" . encode($courses, $course, $term));
-}
-
 ?>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -39,6 +31,10 @@ as a PDF. The official copy of the exam schedule may be found
 
 //print "<h2>Debugging</h2>";
 //var_dump($courseString);
+//print "</br>";
+//var_dump($courses);
+//print "</br>";
+//print "<a href=\"/" . encode($courses, $course, '', $term) . "\">No Token</a>";
 
 if (0 < count($courses)) {
   print "<h2>Selected Exams</h2>\n";
@@ -71,7 +67,7 @@ if (0 < count($courses)) {
 
     $missingCourse = $courses;
     unset ($missingCourse[$key]);
-    $goneLink = "<a href=\"/" . encode($missingCourse, $course, $term) .
+    $goneLink = "<a href=\"/" . encode($missingCourse, $course, $token) .
       "\">remove</a>";
 
     print "  <tr>\n";
@@ -88,7 +84,7 @@ if (0 < count($courses)) {
   }
   print "</table>";
   print "<a href=\"/" .
-    encode($courses, $course, $term) .
+    encode(array(), array(), $token) .
     ".ics\">Calendar Link</a>\n";
 }
   
@@ -110,7 +106,7 @@ if ('' == $term) {
     }
     $term = $item['Term_ID'];
     print "      <td><a href=\"/".
-          encode($courses, $course, $term) .
+          encode(array(), array(), $token, $term) .
           "\">${item["Name"]}</a></td>\n";
   }
   print "    </tr>\n  </table>\n";
@@ -134,10 +130,8 @@ if ('' == $term) {
       print "  </tr>\n  <tr>\n";
     }
     $course['discipline'] = $item['Course'];
-    $jsonCourse = json_encode($course);
-    $jsonCourse = str_replace('"', "'", $jsonCourse);
     print "      <td><a href=\"/" .
-          encode($courses, $course, $term) .
+          encode(array(), $course, $token) .
           "\">${item["Course"]}</a></td>\n";
   }
   print "    </tr>\n  </table>\n";
@@ -163,18 +157,16 @@ if ('' == $term) {
       print "  </tr>\n  <tr>\n";
     }
     $course['number'] = $item['Number'];
-    $jsonCourse = json_encode($course);
-    $jsonCourse = str_replace('"', "'", $jsonCourse);
     print "      <td><a href=\"/" .
-          encode($courses, $course, $term) .
+          encode(array(), $course, $token) .
           "\">${item['Number']}</a></td>";
   }
   print "    </tr>\n  </table>\n";
 } else if (!isset($course['section'])) {
   $stmt = $db->prepare(
     "SELECT Section FROM Exams WHERE Term = (SELECT ID FROM Terms WHERE " .
-    "Term_ID = ?) AND Course = ? AND Number = ? GROUP BY Number ORDER " .
-    "BY Number ASC");
+    "Term_ID = ?) AND Course = ? AND Number = ? GROUP BY Section ORDER " .
+    "BY Section ASC");
   $stmt->bindParam(1, $term);
   $stmt->bindParam(2, $course['discipline']);
   $stmt->bindParam(3, $course['number']);
@@ -194,10 +186,8 @@ if ('' == $term) {
       print "  </tr>\n  <tr>\n";
     }
     $course['section'] = $item['Section'];
-    $jsonCourse = json_encode($course);
-    $jsonCourse = str_replace('"', "'", $jsonCourse);
     print "      <td><a href=\"/" .
-          encode($courses, $course, $term) .
+          encode(array(), $course, $token) .
           "\">${item['Section']}</a></td>";
   }
   print "    </tr>\n  </table>\n";
@@ -222,5 +212,16 @@ link.
 need to rebuild your calendar and either redownload the file or re-add it to 
 Google using the steps above.
 
+<p>Tracking tokens are used to collect statistics on the usage of this website.
+The only data stored in relation to them is the time they are created, the time
+they were last seen, the number of times they have been seen, and the courses
+that have been selected for them. No information about who or from where they
+are accessed is collected. Here is your tracking data:
+<ul>
+<li>Tracking Token: <?php echo $token; ?></li>
+<li>Creation Timestamp: <?php echo $info['CreationTime']; ?></li>
+<li>Last Seen: <?php echo $info['LastAccessed']; ?></li>
+<li>Number of time seen: <?php echo $info['NumberOfAccesses']; ?></li>
+</ul>
 </body>
 </html>

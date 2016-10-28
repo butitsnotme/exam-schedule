@@ -1,7 +1,14 @@
 <?php
 
 $commonAllow = true;
+$forwardable = false;
 require_once('common.php');
+
+if ($forward) {
+  http_response_code(301);
+  header("Location: /" . encode(array(), array(), $token) . ".ics");
+  die();
+}
 
 header("Content-type: text/calendar");
 header("Cache-Control: no-store, no-cache");
@@ -28,7 +35,10 @@ if (0 < count($courses)) {
     print "SUMMARY:${res['Course']} ${res['Number']} Section" .
       " ${res['Section']}\r\n";
     print "DESCRIPTION:Final Exam for ${res['Course']} ${res['Number']}" .
-     " Section ${res['Section']}\r\n";
+      " Section ${res['Section']}";
+    print "<br />Visit <a href=\"http://test.exams.bellinger.ca/" .
+      encode(array(), array(), $token) . "\">here to change</a>";
+    print "\r\n";
     print "UID:${res['ID']}\r\n";
     print "STATUS:CONFIRMED\r\n";
     print "DTSTART:" . gmdate('Ymd\THis\Z', strtotime($res['StartTime'])) . "\r\n";
