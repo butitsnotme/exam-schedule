@@ -2,6 +2,28 @@
 
 Creates a iCalendar file for a specified set of exams.
 
+## What is currently tracked
+
+ - What courses are selected (so they may be edited later
+ - The time when the tracking token was first seen
+ - The time when the tracking token was last seen
+ - How many times the tracking token has been seen
+ - And, of course, the tracking token itself
+
+## How does editing work?
+
+The calendar entries now include a link to the site (specifying the tracking
+token), showing the courses that are currently selected. From there they may be
+added and removed. The calendar will be updated the next time it syncs.
+
+Please note that if you created your calendar prior to the assignment of
+tracking tokens, then changing the calendar will not work properly. To make it
+work, please re-add it to your calendar (and remove the old one). You can tell
+if you need to do this because your traking token will have only the lowecase
+letters a through f and numbers, and will be quite long (64 characters). The
+normal ones are much shorter and may have all lowercase, uppercase, numbers and
+some special characters.
+
 ## Installation
 To use run this web app you need a University of Waterloo Open Data API key
 (https://api.uwaterloo.ca/). Additionally, you will need PHP5 and Apache with
